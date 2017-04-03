@@ -3,67 +3,61 @@ title: "長庚大學 大數據分析方法 作業三"
 output: github_document
 ---
 
-## 作業說明 （繳交時請直接刪除這個章節）
-
-作業目的：練習初級爬蟲，並將爬蟲結果整理成資料框data.frame
-
-依下列指示，完成網站內文分析：
-
-- 爬取指定網站內容
-    - 學號結尾 0,4,8:[Ptt Tech_Job 版](https://www.ptt.cc/bbs/Tech_Job/index.html)
-    - 學號結尾 1,5,9:[Ptt NBA 版](https://www.ptt.cc/bbs/NBA/index.html)
-    - 學號結尾 2,6:[Ptt LoL 版](https://www.ptt.cc/bbs/LoL/index.html)
-    - 學號結尾 3,7:[Ptt movie 版](https://www.ptt.cc/bbs/movie/index.html)
-    
-- 試著爬出**至少100篇**文章（`30pt`）的**標題**、**推文數**與**作者ID**（各`10pt`）
-    - 資料框欄位名稱：
-        - **標題**：Title
-        - **推文數**：PushNum
-        - **作者ID**：Author
-    - 一頁只有20篇，該怎麼辦？
-        - 提示：使用for + rbind()將分批爬取出的資料結合
-        - 範例：dataframeAll<-rbind(dataframe1,dataframe2) 
-        - 參考：[6.6 資料組合](http://yijutseng.github.io/DataScienceRBook/manipulation.html#section-6.6)
-    
-- 將爬取出的資料輸出至Markdown報告中（`10pt`）
-    - 使用knitr::kable(資料框物件)整理輸出
-    
-- 用文字搭配程式碼解釋爬蟲結果 
-    - 共爬出幾篇文章標題？（程式碼與文字解釋各`5pt`）
-        - dim(), nrow(), str()皆可
-    - 哪個作者文章數最多？（程式碼與文字解釋各`5pt`）
-        - table()
-    - 其他爬蟲結果解釋（`10pt`）
-        - 試著找出有趣的現象，不一定要用程式碼搭配解釋，也可只用文字
-
-    
-
 ## 網站資料爬取
 ```{r}
 #這是R Code Chunk
+#install.packages("rvest")
 library(rvest) ##第一次使用要先安裝 install.packages("rvest")
+siteURL<-"https://www.ptt.cc"
+targetURL<-paste0(siteURL, "/bbs/LoL/index.html")
 ##read_html
 ##html_nodes
 ##html_text
+rownumber<-0
+AllDatas<-NULL
+while(rownumber<100){
+    btns<-read_html(targetURL) %>% html_nodes(".action-bar a") %>% html_attr("href")
+    previouspage<-btns[4]
+    Titles<-read_html(targetURL) %>% html_nodes(".title") %>% html_text()
+    PushNums<-read_html(targetURL) %>% html_nodes(".nrec") %>% html_text()
+    Authors<-read_html(targetURL) %>% html_nodes(".author") %>% html_text()
+    targetURL<-paste0(siteURL, previouspage)
+    tempDatas<-data.frame(Title=c(Titles), PushNum=c(PushNums), Author=c(Authors))
+    if(is.null(AllDatas)){
+        rownumber<-nrow(tempDatas)
+        AllDatas<-tempDatas
+    }
+    else{
+        AllDatas<-rbind(AllDatas, tempDatas)
+        rownumber<-nrow(AllDatas)
+    }
+}
 ```
 
 ## 爬蟲結果呈現
 ```{r}
 #這是R Code Chunk
-knitr::kable(iris) ##請將iris取代為上個步驟中產生的爬蟲資料資料框
+knitr::kable(AllDatas)
 ```
 
 ## 解釋爬蟲結果 
 ```{r}
 #這是R Code Chunk
+nrow(AllDatas)
+
 ```
 
-解釋解釋解釋解釋
+這是我爬到的堆文數量,因為我是讓程式判斷抓到超過100筆就停，因此每次結果不盡想同，隨時有人發文都將改變抓到的資料
 
 ```{r}
 #這是R Code Chunk
+table(AllDatas$Author)
+
 ```
 
-解釋解釋解釋解釋
+照ID出現次數列出，可以看到發文最多的Author，這次次數最多者是刪文者，其作者並不一定相同，無法判定誰是真正發文王，但其實大家在前100筆資料內發文數差不多，大多非1即2
 
-人工結論與解釋解釋解釋解釋解釋解釋解釋
+人工結論與解釋：
+這支程式是抓取最新的至少100筆資料，一邊寫程式一邊有人發文，所以抓到的資料一直變動，有點難解釋誰是發文最多或者抓到的資料有幾筆，因為會隨著最新發文而可能有些許的改變。
+另外我本人完全不懂LOL，雖知是個好玩的遊戲，但一直沒有過身的涉略，所以找尋有趣的現象也滿困難的，如果是抓Tennis看板的話，我一定可以滔滔不絕的說出各種最新網球動態的。
+真的要說有趣的事情那就是一票人喜歡問問題卻掛閒聊的標籤，然後針對閒聊標籤回文數也比較多，真正掛問題標籤得到的回應數反而比較少www

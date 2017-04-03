@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"長庚大學 大數據分析方法 作業三\"\noutput: github_document\n---\n\n## 網站資料爬取\n```{r}\n#這是R Code Chunk\n#install.packages(\"rvest\")\nlibrary(rvest) ##第一次使用要先安裝 install.packages(\"rvest\")\nsiteURL<-\"https://www.ptt.cc\"\ntargetURL<-paste0(siteURL, \"/bbs/LoL/index.html\")\n##read_html\n##html_nodes\n##html_text\nrownumber<-0\nAllDatas<-NULL\nwhile(rownumber<100){\n    btns<-read_html(targetURL) %>% html_nodes(\".action-bar a\") %>% html_attr(\"href\")\n    previouspage<-btns[4]\n    Titles<-read_html(targetURL) %>% html_nodes(\".title\") %>% html_text()\n    PushNums<-read_html(targetURL) %>% html_nodes(\".nrec\") %>% html_text()\n    Authors<-read_html(targetURL) %>% html_nodes(\".author\") %>% html_text()\n    targetURL<-paste0(siteURL, previouspage)\n    tempDatas<-data.frame(Title=c(Titles), PushNum=c(PushNums), Author=c(Authors))\n    if(is.null(AllDatas)){\n        rownumber<-nrow(tempDatas)\n        AllDatas<-tempDatas\n    }\n    else{\n        AllDatas<-rbind(AllDatas, tempDatas)\n        rownumber<-nrow(AllDatas)\n    }\n}\n```\n\n## 爬蟲結果呈現\n```{r}\n#這是R Code Chunk\nknitr::kable(AllDatas)\n```\n\n## 解釋爬蟲結果 \n```{r}\n#這是R Code Chunk\nnrow(AllDatas)\n\n```\n\n這是我爬到的堆文數量,因為我是讓程式判斷抓到超過100筆就停，因此每次結果不盡想同，隨時有人發文都將改變抓到的資料\n\n```{r}\n#這是R Code Chunk\ntable(AllDatas$Author)\n\n```\n\n照ID出現次數列出，可以看到發文最多的Author，這次次數最多者是刪文者，其作者並不一定相同，無法判定誰是真正發文王，但其實大家在前100筆資料內發文數差不多，大多非1即2\n\n人工結論與解釋：\n這支程式是抓取最新的至少100筆資料，一邊寫程式一邊有人發文，所以抓到的資料一直變動，有點難解釋誰是發文最多或者抓到的資料有幾筆，因為會隨著最新發文而可能有些許的改變。\n另外我本人完全不懂LOL，雖知是個好玩的遊戲，但一直沒有過身的涉略，所以找尋有趣的現象也滿困難的，如果是抓Tennis看板的話，我一定可以滔滔不絕的說出各種最新網球動態的。\n真的要說有趣的事情那就是一票人喜歡問問題卻掛閒聊的標籤，然後針對閒聊標籤回文數也比較多，真正掛問題標籤得到的回應數反而比較少www\n",
+    "created" : 1490685035747.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3589968350",
+    "id" : "4F4B39C5",
+    "lastKnownWriteTime" : 1491229134,
+    "last_content_update" : 1491229134612,
+    "path" : "~/GitHub/cguim-bigdata-hw3-TobiichiOrigami/README.Rmd",
+    "project_path" : "README.Rmd",
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

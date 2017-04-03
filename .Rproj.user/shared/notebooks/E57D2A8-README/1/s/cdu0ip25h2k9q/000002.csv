@@ -1,0 +1,13 @@
+"0","#這是R Code Chunk"
+"0","nrow(AllDatas)#這是我爬到的堆文數量"
+"1","[1]"
+"1"," 149"
+"1","
+"
+"2","Warning message:
+"
+"2","In strsplit(code, ""\n"", fixed = TRUE) :"
+"2","
+ "
+"2"," input string 1 is invalid in this locale
+"
